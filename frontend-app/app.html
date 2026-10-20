@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work Logger - Bảng Điều Khiển Công Việc</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f4f6f9; color: #333; padding: 30px 15px; }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 { text-align: center; color: #2c3e50; margin-bottom: 25px; }
+
+        .card { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 25px; }
+        .card h2 { color: #34495e; margin-bottom: 15px; font-size: 1.25rem; border-bottom: 2px solid #ecf0f1; padding-bottom: 8px; }
+
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group.full-width { grid-column: span 2; }
+        label { font-weight: 600; margin-bottom: 5px; font-size: 0.9rem; color: #555; }
+        input, select { padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 0.95rem; }
+        input:focus, select:focus { border-color: #3498db; outline: none; }
+
+        button.btn-submit { background-color: #3498db; color: white; border: none; padding: 12px 20px; font-size: 1rem; font-weight: bold; border-radius: 5px; cursor: pointer; transition: background 0.2s; margin-top: 10px; }
+        button.btn-submit:hover { background-color: #2980b9; }
+
+        .items-list { display: flex; flex-direction: column; gap: 12px; }
+        .item-card { background: #fff; border-left: 5px solid #3498db; padding: 15px; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.04); display: flex; justify-content: space-between; align-items: center; }
+        .item-info h3 { margin-bottom: 5px; color: #2c3e50; font-size: 1.1rem; }
+        .item-info p { font-size: 0.85rem; color: #7f8c8d; margin-top: 3px; }
+        .item-badge { background: #e8f4fd; color: #2980b9; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.8rem; display: inline-block; margin-top: 5px; }
+
+        .empty-msg { text-align: center; color: #95a5a6; padding: 20px; font-style: italic; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Work Logger Dashboard</h1>
+
+    <!-- Form tạo Scheduled Item mới -->
+    <div class="card">
+        <h2>Thêm Công Việc Lịch Trình Mới</h2>
+        <form id="scheduleForm">
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label for="title">Tiêu đề công việc (*)</label>
+                    <input type="text" id="title" required placeholder="Ví dụ: Lập trình giao diện Frontend...">
+                </div>
+
+                <div class="form-group">
+                    <label for="item_type">Loại công việc (*)</label>
+                    <select id="item_type" required>
+                        <option value="Task">Nhiệm vụ (Task)</option>
+                        <option value="Meeting">Cuộc họp (Meeting)</option>
+                        <option value="Event">Sự kiện (Event)</option>
+                        <option value="Reminder">Nhắc nhở (Reminder)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="user_id">Mã người dùng (User ID)</label>
+                    <input type="number" id="user_id" value="1" min="1" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="start_date">Thời gian bắt đầu (*)</label>
+                    <input type="datetime-local" id="start_date" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="end_date">Thời gian kết thúc (*)</label>
+                    <input type="datetime-local" id="end_date" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-submit">Thêm Vào Lịch Trình</button>
+        </form>
+    </div>
+
+    <!-- Danh sách Scheduled Items -->
+    <div class="card">
+        <h2>Lịch Trình Đã Ghi Nhận</h2>
+        <div id="scheduleList" class="items-list">
+            <div class="empty-msg">Đang kết nối dữ liệu từ Backend...</div>
+        </div>
+    </div>
+</div>
+
+<!-- Nhúng script với type="module" -->
+<script type="module" src="app.js"></script>
+</body>
+</html>
