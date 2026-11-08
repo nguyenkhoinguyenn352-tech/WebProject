@@ -1,62 +1,20 @@
-// URL của Backend API do Đạt viết
+// Backend API Base URL
 const API_BASE_URL = 'http://localhost:3000/api';
 
 document.addEventListener('DOMContentLoaded', () => {
     const scheduleForm = document.getElementById('scheduleForm');
-    const scheduleList = document.getElementById('scheduleList');
 
-    // 1. Hàm tải danh sách công việc từ Backend (/api/scheduled-items)
-    async function loadScheduledItems() {
-        try {
-            const response = await fetch(`${API_BASE_URL}/scheduled-items`);
-            if (!response.ok) {
-                throw new Error('Lỗi khi tải dữ liệu từ máy chủ.');
-            }
+    // Load initial schedule list
+    loadScheduledItems();
 
-            const items = await response.json();
-            renderScheduleList(items);
-        } catch (error) {
-            console.error('Lỗi API:', error);
-            scheduleList.innerHTML = `<div class="empty-msg" style="color: #e74c3c;">Không thể tải danh sách. Hãy đảm bảo Backend (server.js) đang chạy tại port 3000.</div>`;
-        }
-    }
-
-    // 2. Hàm hiển thị danh sách công việc lên giao diện
-    function renderScheduleList(items) {
-        if (!items || items.length === 0) {
-            scheduleList.innerHTML = '<div class="empty-msg">Chưa có công việc nào trong lịch trình.</div>';
-            return;
-        }
-
-        scheduleList.innerHTML = items.map(item => {
-            const start = item.start_date ? new Date(item.start_date).toLocaleString('vi-VN') : 'Không xác định';
-            const end = item.end_date ? new Date(item.end_date).toLocaleString('vi-VN') : 'Không xác định';
-
-            return `
-                <div class="item-card">
-                    <div class="item-info">
-                        <h3>${escapeHtml(item.title)}</h3>
-                        <span class="item-badge">${escapeHtml(item.item_type || 'Task')}</span>
-                        <p>🕒 Bắt đầu: ${start}</p>
-                        <p>🏁 Kết thúc: ${end}</p>
-                    </div>
-                </div>
-            `;
-        }).join('');
-    }
-
-    // 3. Hàm xử lý gửi form tạo công việc mới (POST /api/scheduled-items)
+    // Event listener for form submission
     if (scheduleForm) {
         scheduleForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            const newItem = {
-                user_id: parseInt(document.getElementById('user_id').value, 10),
-                title: document.getElementById('title').value.trim(),
-                item_type: document.getElementById('item_type').value,
-                start_date: document.getElementById('start_date').value,
-                end_date: document.getElementById('end_date').value
-            };
+            const title = document.getElementById('title').value;
+            const start_date = document.getElementById('start_date').value;
+            const end_date = document.getElementById('end_date').value;
 
             try {
                 const response = await fetch(`${API_BASE_URL}/scheduled-items`, {
@@ -64,36 +22,99 @@ document.addEventListener('DOMContentLoaded', () => {
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(newItem)
+                    body: JSON.stringify({ title, start_date, end_date })
                 });
 
                 if (response.ok) {
                     scheduleForm.reset();
-                    // Reset mặc định User ID về 1
-                    document.getElementById('user_id').value = "1";
-                    // Tải lại danh sách sau khi thêm thành công
-                    await loadScheduledItems();
+                    loadScheduledItems();
                 } else {
-                    const errData = await response.json();
-                    alert(`Lỗi khi tạo công việc: ${errData.error || 'Vui lòng kiểm tra lại dữ liệu.'}`);
+                    alert('Failed to save schedule. Please check backend server.');
                 }
             } catch (error) {
-                console.error('Lỗi khi gửi dữ liệu:', error);
-                alert('Không thể gửi request tới máy chủ!');
+                console.error('Error adding item:', error);
+                alert('Error connecting to backend server.');
             }
         });
     }
+});
 
-    // Hàm chống lỗi XSS cho chuỗi văn bản
-    function escapeHtml(str) {
-        if (!str) return '';
-        return String(str)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;');
+// Fetch schedule items from Backend API
+async function loadScheduledItems() {
+    const scheduleList = document.getElementById('scheduleList');
+    if (!scheduleList) return;
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/scheduled-items`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch data from server.');
+        }
+
+        const items = await response.json();
+        renderScheduleList(items);
+    } catch (error) {
+        console.error('API Error:', error);
+        scheduleList.innerHTML = `
+            <div class="p-4 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm text-center">
+                Unable to load schedules. Please make sure the backend server is running.
+            </div>
+        `;
+    }
+}
+
+// Render list of items into UI
+function renderScheduleList(items) {
+    const scheduleList = document.getElementById('scheduleList');
+    if (!scheduleList) return;
+
+    if (!items || items.length === 0) {
+        scheduleList.innerHTML = `
+            <div class="text-center py-10 text-slate-400 text-sm italic border-2 border-dashed border-slate-100 rounded-lg">
+                No items found in your schedule.
+            </div>
+        `;
+        return;
     }
 
-    // Tải dữ liệu ban đầu ngay khi mở trang
-    loadScheduledItems();
-});
+    scheduleList.innerHTML = items.map(item => {
+        const start = item.start_date
+            ? new Date(item.start_date).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })
+            : 'N/A';
+        const end = item.end_date
+            ? new Date(item.end_date).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })
+            : 'N/A';
+
+        return `
+            <div class="p-4 bg-white border border-slate-200 hover:border-indigo-200 hover:shadow-md rounded-xl transition duration-150 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                <div class="space-y-1">
+                    <h3 class="font-semibold text-slate-800 text-base flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+                        ${escapeHtml(item.title || 'Untitled Task')}
+                    </h3>
+                    <div class="text-xs text-slate-500 flex items-center gap-4">
+                        <span><strong class="font-medium text-slate-600">Start:</strong> ${start}</span>
+                        <span><strong class="font-medium text-slate-600">End:</strong> ${end}</span>
+                    </div>
+                </div>
+                <div>
+                    <span class="inline-block px-2.5 py-1 text-xs font-medium bg-slate-100 text-slate-600 rounded-md">
+                        Scheduled
+                    </span>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Security: Escape HTML characters to prevent XSS
+function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, function (m) {
+        return {
+            '&': '&',
+            '<': '<',
+            '>': '>',
+            '"': '"',
+            "'": '''
+        }[m];
+    });
+}
