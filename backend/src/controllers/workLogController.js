@@ -16,7 +16,14 @@ const getWorkLogs = async (req, res) => {
 
 // POST new work log
 const postWorkLog = async (req, res) => {
-    const result = await addWorkLog(req.body);
+    const user_id = req.user.user_id;
+
+    const data = {
+        ...req.body,
+        user_id: user_id
+    };
+
+    const result = await addWorkLog(data);
 
     if (result) {
         res.status(201).json({

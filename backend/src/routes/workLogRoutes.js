@@ -1,4 +1,5 @@
 import express from 'express';
+import { requireAuth } from '../middleware/authMiddleware.js';
 
 import {
     getWorkLogs,
@@ -11,7 +12,7 @@ const router = express.Router();
 
 router.get('/', getWorkLogs);
 
-router.post('/', postWorkLog);
+router.post('/', requireAuth, postWorkLog);
 
 router.put('/:id', putWorkLog);
 

@@ -1,4 +1,5 @@
 import express from 'express';
+import { requireAuth } from '../middleware/authMiddleware.js';
 
 import {
     getScheduledItems,
@@ -11,7 +12,7 @@ const router = express.Router();
 
 router.get('/', getScheduledItems);
 
-router.post('/', postScheduledItem);
+router.post('/', requireAuth, postScheduledItem);
 
 router.put('/:id', putScheduledItem);
 

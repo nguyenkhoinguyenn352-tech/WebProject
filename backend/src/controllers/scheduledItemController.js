@@ -16,7 +16,14 @@ const getScheduledItems = async (req, res) => {
 
 // POST new scheduled item
 const postScheduledItem = async (req, res) => {
-    const result = await addScheduledItem(req.body);
+    const user_id = req.user.user_id;
+
+    const data = {
+        ...req.body,
+        user_id: user_id
+    };
+
+    const result = await addScheduledItem(data);
 
     if (result) {
         res.status(201).json({
