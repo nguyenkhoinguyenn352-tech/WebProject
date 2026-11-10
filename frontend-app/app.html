@@ -131,9 +131,47 @@
 
     </main>
 </div>
+<button id="logoutButton">Logout</button>
 
 <!-- Embedded JS -->
 <script>
+    const logoutButton = document.getElementById('logoutButton');
+
+    if (logoutButton) {
+        logoutButton.addEventListener('click', () => {
+            sessionStorage.clear();
+            window.location.href = 'login.html';
+        });
+    }
+
+    const token = sessionStorage.getItem('token');
+
+    if (!token) {
+        window.location.href = 'login.html';
+    } else {
+        checkAuth();
+    }
+
+    async function checkAuth() {
+        try {
+            const response = await fetch(
+                'http://localhost:3000/api/auth/me',
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+            );
+
+            if (!response.ok) {
+                sessionStorage.clear();
+                window.location.href = 'login.html';
+            }
+
+        } catch (error) {
+            console.error('Auth check error:', error);
+        }
+    }
     const API_BASE_URL = 'http://localhost:3000/api';
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -144,14 +182,33 @@
             scheduleForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const title = document.getElementById('title').value;
-                const start_date = document.getElementById('start_date').value;
-                const end_date = document.getElementById('end_date').value;
+                const startDateTime = document.getElementById('start_date').value;
+                const endDateTime = document.getElementById('end_date').value;
+
+                const start_date = startDateTime.split('T')[0];
+                const end_date = endDateTime.split('T')[0];
+
+                const currentUser = JSON.parse(
+                    sessionStorage.getItem('user')
+                );
+
+                const newItem = {
+                    title: title,
+                    item_type: 'Task',
+                    start_date: start_date,
+                    end_date: end_date
+                };
 
                 try {
+                    const token = sessionStorage.getItem('token');
+
                     const response = await fetch(`${API_BASE_URL}/scheduled-items`, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ title, start_date, end_date })
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify(newItem)
                     });
 
                     if (response.ok) {
@@ -230,9 +287,15 @@
 
     function escapeHtml(str) {
         return String(str).replace(/[&<>"']/g, function (m) {
-            return { '&': '&', '<': '<', '>': '>', '"': '"', "'": ''' }[m];
-            });
-        }
+            return {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            }[m];
+        });
+    }
 </script>
 </body>
 </html>

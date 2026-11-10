@@ -6,6 +6,7 @@ import scheduledItemRoutes from './routes/scheduledItemRoutes.js';
 import workLogRoutes from './routes/workLogRoutes.js';
 import categoryRoutes from './routes/categoryRoutes.js';
 import reportRoutes from './routes/reportRoutes.js';
+import authRoutes from './routes/authRoutes.js';
 
 
 const app = express();
@@ -22,6 +23,7 @@ app.use('/api/scheduled-items', scheduledItemRoutes);
 app.use('/api/worklogs', workLogRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/reports', reportRoutes);
+app.use('/api/auth', authRoutes);
 
 
 // Test server
