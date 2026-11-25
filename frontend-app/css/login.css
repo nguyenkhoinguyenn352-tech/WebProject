@@ -1,0 +1,87 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    min-height: 100vh;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-family: Arial, sans-serif;
+
+    background:
+            linear-gradient(
+                    rgba(0, 0, 0, 0.3),
+                    rgba(0, 0, 0, 0.3)
+            ),
+            url("../assets/images/login-campus.jpg")
+            center / cover no-repeat;
+}
+
+.login-card {
+    width: 380px;
+
+    padding: 45px 40px;
+
+    border-radius: 16px;
+
+    background: white;
+
+    text-align: center;
+
+    box-shadow:
+            0 12px 30px
+            rgba(0, 0, 0, 0.18);
+}
+
+.school-logo {
+    width: 180px;
+
+    margin-bottom: 30px;
+}
+
+.login-card h1 {
+    margin-bottom: 10px;
+
+    font-size: 30px;
+
+    color: #202124;
+}
+
+.login-text {
+    margin-bottom: 28px;
+
+    color: #777;
+
+    font-size: 14px;
+}
+
+#googleSignIn {
+    display: flex;
+    justify-content: center;
+}
+
+#loginMessage {
+    margin-top: 18px;
+
+    color: #e4002b;
+
+    font-size: 13px;
+}
+
+@media (max-width: 500px) {
+
+    .login-card {
+        width: calc(100% - 40px);
+
+        padding: 35px 25px;
+    }
+
+    .school-logo {
+        width: 150px;
+    }
+}

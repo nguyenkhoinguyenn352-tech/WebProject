@@ -1,118 +1,114 @@
 import pool from '../database.js';
 
-const getAllScheduledItems = async () => {
+const getAllScheduledItems = async (userId) => {
     const [rows] = await pool.execute(`
         SELECT
             si.item_id,
-            si.user_id,
-            u.name AS user_name,
             si.title,
             si.item_type,
-            DATE_FORMAT(si.start_date, '%Y-%m-%d') AS start_date,
-            DATE_FORMAT(si.end_date, '%Y-%m-%d') AS end_date
+            si.category_id,
+            c.category_name,
+            si.subcategory_id,
+            sc.subcategory_name,
+            si.time_of_day,
+            DATE_FORMAT(si.start_date, '%Y-%m-%dT%H:%i') AS start_date,
+            DATE_FORMAT(si.end_date, '%Y-%m-%dT%H:%i') AS end_date
         FROM scheduled_items si
-        JOIN users u
-            ON si.user_id = u.user_id
+        LEFT JOIN categories c
+            ON si.category_id = c.category_id
+        LEFT JOIN subcategories sc
+            ON si.subcategory_id = sc.subcategory_id
+        WHERE si.user_id = ?
         ORDER BY si.start_date ASC
-    `);
+    `, [userId]);
 
     return rows;
 };
-
 
 const addScheduledItem = async (item) => {
     const {
         user_id,
         title,
         item_type,
+        category_id,
+        subcategory_id,
+        time_of_day,
         start_date,
         end_date
     } = item;
 
-    const sql = `
+    const [result] = await pool.execute(`
         INSERT INTO scheduled_items (
             user_id,
             title,
             item_type,
+            category_id,
+            subcategory_id,
+            time_of_day,
             start_date,
             end_date
         )
-        VALUES (?, ?, ?, ?, ?)
-    `;
-
-    const params = [
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `, [
         user_id,
         title,
         item_type,
-        start_date,
-        end_date
-    ];
+        category_id || null,
+        subcategory_id || null,
+        time_of_day || null,
+        start_date || null,
+        end_date || null
+    ]);
 
-    const [result] = await pool.execute(sql, params);
-
-    if (result.affectedRows === 0) {
-        return false;
-    }
-
-    return {
-        item_id: result.insertId
-    };
+    return result.insertId;
 };
 
-
-const modifyScheduledItem = async (item, id) => {
+const modifyScheduledItem = async (item, id, userId) => {
     const {
         title,
         item_type,
+        category_id,
+        subcategory_id,
+        time_of_day,
         start_date,
         end_date
     } = item;
 
-    const sql = `
+    const [result] = await pool.execute(`
         UPDATE scheduled_items
         SET title = ?,
             item_type = ?,
+            category_id = ?,
+            subcategory_id = ?,
+            time_of_day = ?,
             start_date = ?,
             end_date = ?
         WHERE item_id = ?
-    `;
-
-    const params = [
+          AND user_id = ?
+    `, [
         title,
         item_type,
-        start_date,
-        end_date,
-        id
-    ];
+        category_id || null,
+        subcategory_id || null,
+        time_of_day || null,
+        start_date || null,
+        end_date || null,
+        id,
+        userId
+    ]);
 
-    const [result] = await pool.execute(sql, params);
-
-    if (result.affectedRows === 0) {
-        return false;
-    }
-
-    return {
-        message: 'success'
-    };
+    return result.affectedRows > 0;
 };
 
+const removeScheduledItem = async (id, userId) => {
+    const [result] = await pool.execute(`
+        DELETE FROM scheduled_items
+        WHERE item_id = ?
+          AND user_id = ?
+    `, [id, userId]);
 
-const removeScheduledItem = async (id) => {
-    const [result] = await pool.execute(
-        `DELETE FROM scheduled_items
-         WHERE item_id = ?`,
-        [id]
-    );
-
-    if (result.affectedRows === 0) {
-        return false;
-    }
-
-    return {
-        message: 'success'
-    };
+    return result.affectedRows > 0;
 };
-
 
 export {
     getAllScheduledItems,
