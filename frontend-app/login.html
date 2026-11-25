@@ -1,87 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Work Logger Login</title>
 
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <link rel="stylesheet" href="css/login.css">
+
+    <script
+            src="https://accounts.google.com/gsi/client"
+            async
+            defer>
+    </script>
+
+    <script src="js/login.js" defer></script>
 </head>
 
 <body>
 
-<h1>Work Logger</h1>
-<h2>Login</h2>
+<div class="login-card">
 
-<div id="googleSignIn"></div>
+    <img
+            src="assets/images/swinburne-logo.png"
+            alt="Swinburne Vietnam"
+            class="school-logo">
 
-<p id="loginMessage"></p>
+    <h1>Work Logger</h1>
 
-<script>
-    const API_BASE_URL = 'http://localhost:3000/api';
+    <p class="login-text">
+        Sign in with your authorized Google account
+    </p>
 
-    window.onload = function () {
-        google.accounts.id.initialize({
-            client_id: '382501830356-65vgsefid73ilp0l35k2u0a5fmcd45ap.apps.googleusercontent.com',
-            callback: handleGoogleLogin
-        });
+    <div id="googleSignIn"></div>
 
-        google.accounts.id.renderButton(
-            document.getElementById('googleSignIn'),
-            {
-                theme: 'outline',
-                size: 'large',
-                text: 'signin_with'
-            }
-        );
-    };
+    <p id="loginMessage"></p>
 
-    async function handleGoogleLogin(response) {
-        try {
-            const backendResponse = await fetch(
-                `${API_BASE_URL}/auth/google`,
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        credential: response.credential
-                    })
-                }
-            );
-
-            const data = await backendResponse.json();
-
-            if (!backendResponse.ok) {
-                document.getElementById('loginMessage').textContent =
-                    data.error || 'Login failed';
-
-                return;
-            }
-
-            // Lưu token và thông tin user tạm thời
-            sessionStorage.setItem('token', data.token);
-            sessionStorage.setItem(
-                'user',
-                JSON.stringify(data.user)
-            );
-
-            document.getElementById('loginMessage').textContent =
-                `Welcome ${data.user.name}`;
-
-            // Login thành công → vào Work Logger
-            window.location.href = 'app.html';
-
-        } catch (error) {
-            console.error('Login error:', error);
-
-            document.getElementById('loginMessage').textContent =
-                'Cannot connect to backend server';
-        }
-    }
-</script>
+</div>
 
 </body>
+
 </html>

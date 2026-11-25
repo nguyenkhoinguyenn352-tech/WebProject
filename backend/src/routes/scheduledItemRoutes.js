@@ -10,12 +10,9 @@ import {
 
 const router = express.Router();
 
-router.get('/', getScheduledItems);
-
+router.get('/', requireAuth, getScheduledItems);
 router.post('/', requireAuth, postScheduledItem);
-
-router.put('/:id', putScheduledItem);
-
-router.delete('/:id', deleteScheduledItem);
+router.put('/:id', requireAuth, putScheduledItem);
+router.delete('/:id', requireAuth, deleteScheduledItem);
 
 export default router;

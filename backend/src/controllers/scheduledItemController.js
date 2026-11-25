@@ -5,69 +5,62 @@ import {
     removeScheduledItem
 } from '../models/scheduledItemModel.js';
 
-
-// GET all scheduled items
 const getScheduledItems = async (req, res) => {
-    const items = await getAllScheduledItems();
+    const items = await getAllScheduledItems(
+        req.user.user_id
+    );
 
     res.json(items);
 };
 
-
-// POST new scheduled item
 const postScheduledItem = async (req, res) => {
-    const user_id = req.user.user_id;
-
-    const data = {
+    const item = {
         ...req.body,
-        user_id: user_id
+        user_id: req.user.user_id
     };
 
-    const result = await addScheduledItem(data);
+    const itemId = await addScheduledItem(item);
 
-    if (result) {
-        res.status(201).json({
-            message: 'Scheduled item created successfully',
-            item_id: result.item_id
-        });
-    } else {
-        res.sendStatus(400);
-    }
+    res.status(201).json({
+        message: 'Scheduled item created',
+        item_id: itemId
+    });
 };
 
-
-// PUT scheduled item
 const putScheduledItem = async (req, res) => {
-    const result = await modifyScheduledItem(
+    const success = await modifyScheduledItem(
         req.body,
-        req.params.id
+        req.params.id,
+        req.user.user_id
     );
 
-    if (result) {
-        res.json({
-            message: 'Scheduled item updated successfully'
+    if (!success) {
+        return res.status(404).json({
+            error: 'Scheduled item not found'
         });
-    } else {
-        res.sendStatus(404);
     }
+
+    res.json({
+        message: 'Scheduled item updated'
+    });
 };
 
-
-// DELETE scheduled item
 const deleteScheduledItem = async (req, res) => {
-    const result = await removeScheduledItem(
-        req.params.id
+    const success = await removeScheduledItem(
+        req.params.id,
+        req.user.user_id
     );
 
-    if (result) {
-        res.json({
-            message: 'Scheduled item deleted successfully'
+    if (!success) {
+        return res.status(404).json({
+            error: 'Scheduled item not found'
         });
-    } else {
-        res.sendStatus(404);
     }
-};
 
+    res.json({
+        message: 'Scheduled item deleted'
+    });
+};
 
 export {
     getScheduledItems,

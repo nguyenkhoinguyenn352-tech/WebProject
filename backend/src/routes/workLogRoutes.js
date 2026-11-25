@@ -10,12 +10,9 @@ import {
 
 const router = express.Router();
 
-router.get('/', getWorkLogs);
-
+router.get('/', requireAuth, getWorkLogs);
 router.post('/', requireAuth, postWorkLog);
-
-router.put('/:id', putWorkLog);
-
-router.delete('/:id', deleteWorkLog);
+router.put('/:id', requireAuth, putWorkLog);
+router.delete('/:id', requireAuth, deleteWorkLog);
 
 export default router;
