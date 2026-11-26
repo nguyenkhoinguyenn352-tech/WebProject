@@ -1,4 +1,6 @@
-const API = 'http://localhost:3000/api';
+const API = location.hostname === 'localhost' || location.hostname === '127.0.0.1'
+    ? 'http://localhost:3000/api'
+    : 'https://web-project-ashen-three.vercel.app/api';
 
 const token = sessionStorage.getItem('token');
 const user = JSON.parse(sessionStorage.getItem('user') || 'null');
