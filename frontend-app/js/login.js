@@ -1,4 +1,6 @@
-const API_BASE_URL = 'http://localhost:3000/api';
+const API_BASE_URL = location.hostname === 'localhost' || location.hostname === '127.0.0.1'
+    ? 'http://localhost:3000/api'
+    : 'https://web-project-ashen-three.vercel.app/api';
 
 // Dùng đúng Client ID hiện tại của project
 const GOOGLE_CLIENT_ID = '382501830356-65vgsefid73ilp0l35k2u0a5fmcd45ap.apps.googleusercontent.com';
